@@ -12,7 +12,7 @@ We have all seen a figure in a journal article—a clean multi-panel event-study
 
 The **Scientific Figure Recreator** lets you drag-and-drop a screenshot of any published figure into ArtesAI. The agent deconstructs the visual layout, axes, error bars, annotations, and hex color palette, and then—based on which **Language Skill** you attach (`Python`, `R`, `Stata`, or `MATLAB`)—writes a self-contained script that **generates realistic synthetic data matching the figure** and saves a high-resolution (`300 DPI` PNG + vector PDF) plot on your local machine. Every generated script includes a clearly marked **`"SWAP YOUR OWN CSV HERE"`** block so you can plug in your real dataset in one line.
 
-- **Recommended Model in ArtesAI**: `OpenAI → gpt-5.4` / `gpt-6-luna` or `Anthropic → claude-sonnet-5` / `claude-opus-4-7` (Creativity: `Low`)
+- **Recommended Model in ArtesAI**: `OpenAI → gpt-5.4` / `gpt-6-luna` or `Anthropic → claude-sonnet-5` / `claude-opus-4-7`
 - **Estimated Setup Time**: ~5 minutes
 
 ---

@@ -1,345 +1,408 @@
 # Example Output: Scientific Figure Recreator
 
-Below is the expected output when you upload [`sample-paper-figure.png`](./sample-paper-figure.png) and run the prompt from [`example-input.md`](./example-input.md). Depending on which **Language Skill** you attach via **`+` → `Skills >`**, the agent will generate the matching script (**Python**, **R**, **Stata**, or **MATLAB**) below the Visual Anatomy Blueprint.
+Below is the expected output when you upload [`sample-paper-figure.png`](./sample-paper-figure.png) and run the prompt from [`example-input.md`](./example-input.md). Depending on which **Language Skill** you attach via **`+` → `Skills >`**, the agent will generate the a script (**Python**, **R**, **Stata**, or **MATLAB**) below the Visual Anatomy Blueprint.
 
+This example output was generated with ArtesAI using gpt-5.6-luna on 11/04/2026
 ---
 
-## Step 1 — Visual Anatomy Blueprint
+## Figure anatomy
+* Panel A: Event-study line plot from years −4 to +5, with treated and control county trajectories, shaded 95% confidence ribbons, a dashed zero reference, and a red dashed policy-adoption marker.
+* Panel B: Jittered observations over boxplots for control, treated-inland, and treated-coastal subgroups, with a dashed zero reference.
+* Approximate palette: Burgundy #984653, slate blue-gray #78878E, and warm sand #DCC89B, with pale matching fills.
+* The script generates seeded synthetic data and includes a CSV swap-in block. The recreated values are approximations, not the original paper’s data.
 
-### 1. Chart Architecture & Layout
-- **Overall Layout**: Horizontal 2-panel figure (`1 row × 2 columns`), with Panel A slightly wider than Panel B (`~1.35 : 1` width ratio) and open L-shaped axes (top and right spines removed).
-- **Panel A (`A. Event-Study Treatment Effect Trajectory`)**:
-  - **Type**: Difference-in-Differences (DiD) / Event-Study line plot with shaded 95% confidence interval ribbons (`alpha ≈ 0.20`).
-  - **X-Axis**: `Years Relative to Policy Adoption (t = 0)`, integer ticks from `-4` to `5`.
-  - **Y-Axis**: `Change in Wetland Canopy Index (SD)`, ticks from `-0.5` to `2.5` by `0.5`.
-  - **Reference Lines**: Horizontal dashed gray baseline at `y = 0.0`; vertical dotted red line at `x = -0.5` labeled *"Policy Adoption"* in italic red text.
-  - **Series**:
-    - `Treated Counties (n = 28)`: Deep burgundy/garnet line with circular markers (`o`), flat near `0` pre-policy (`t = -4..0`), rising nonlinearly to `+2.05 SD` by `t = +5`.
-    - `Control Counties (n = 34)`: Slate-gray line with square markers (`s`), flat near `0.0` across all years (`-4..5`).
-- **Panel B (`B. Post-Policy Effect by Subgroup`)**:
-  - **Type**: 3-group boxplot overlaid with horizontally jittered individual county observations (white-edged circular points).
-  - **X-Axis Categories**: `Control Counties`, `Treated (Inland)`, `Treated (Coastal)`.
-  - **Y-Axis**: `Mean Post-Treatment Effect (SD)`, ticks from `-1.0` to `3.0` by `1.0`, with a horizontal dashed baseline at `y = 0.0`.
-
-### 2. Extracted Hex Color Palette
-| Visual Element | Hex Code | RGB Triplet (for Stata/MATLAB) |
-| :--- | :--- | :--- |
-| **Treated Counties / Coastal Subgroup (Garnet)** | `#782F40` | `120 47 64` |
-| **Control Counties (Slate Gray)** | `#5C6B73` | `92 107 115` |
-| **Treated Inland Subgroup (Warm Gold)** | `#CEB888` | `206 184 136` |
-| **Policy Adoption Vertical Line (Crimson)** | `#B22222` | `178 34 34` |
-| **Zero Reference Baseline (Neutral Gray)** | `#8C8C8C` | `140 140 140` |
-
-### 3. Synthetic Data Schema
-To reproduce both panels from your own data later, your CSV files only need:
-- **Panel A (`event_study_data.csv`)**: `year` (`-4` to `5`), `group` (`"Treated"`, `"Control"`), `mean_effect`, `ci_low`, `ci_high`
-- **Panel B (`subgroup_data.csv`)**: `county_id`, `subgroup` (`"Control Counties"`, `"Treated (Inland)"`, `"Treated (Coastal)"`), `post_effect_sd`
-
----
-
-## Step 2 — Reproducible Local Code (By Attached Language Skill)
-
-### Option A: If You Attached `figure-recreator-python` (`/python`)
-
-Save as `recreate_figure.py` and run with `python3 recreate_figure.py`:
-
-```python
-"""
-Reproducible Recreation of Two-Panel Event-Study & Subgroup Figure
-Saves: recreated_figure.png (300 DPI) and recreated_figure.pdf (Vector)
-"""
-
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-
-# =============================================================================
-# 1. SEEDED SYNTHETIC DATA GENERATOR (Runs out-of-the-box)
-# =============================================================================
-rng = np.random.default_rng(42)
-years = np.arange(-4, 6)
-
-df_panel_a = pd.DataFrame({
-    "year": np.tile(years, 2),
-    "group": ["Control Counties (n = 34)"] * 10 + ["Treated Counties (n = 28)"] * 10,
-    "mean_effect": [
-        -0.05, 0.02, -0.01, 0.03, 0.00, 0.04, 0.02, 0.05, 0.03, 0.06,  # Control
-        -0.08, -0.02, 0.04, -0.01, 0.00, 0.85, 1.42, 1.78, 1.95, 2.05, # Treated
-    ],
-    "ci_halfwidth": [
-        0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22,
-        0.24, 0.23, 0.22, 0.21, 0.05, 0.26, 0.28, 0.30, 0.31, 0.32,
-    ],
-})
-df_panel_a["ci_low"] = df_panel_a["mean_effect"] - df_panel_a["ci_halfwidth"]
-df_panel_a["ci_high"] = df_panel_a["mean_effect"] + df_panel_a["ci_halfwidth"]
-
-df_panel_b = pd.DataFrame({
-    "subgroup": (
-        ["Control\nCounties"] * 34
-        + ["Treated\n(Inland)"] * 14
-        + ["Treated\n(Coastal)"] * 14
-    ),
-    "post_effect_sd": np.concatenate([
-        rng.normal(loc=0.04, scale=0.35, size=34),
-        rng.normal(loc=1.34, scale=0.45, size=14),
-        rng.normal(loc=2.14, scale=0.52, size=14),
-    ]),
-})
-
-# =============================================================================
-# 2. SWAP YOUR OWN DATA HERE (Uncomment to load your own CSVs)
-# =============================================================================
-# df_panel_a = pd.read_csv("my_event_study_data.csv")  # cols: year, group, mean_effect, ci_low, ci_high
-# df_panel_b = pd.read_csv("my_subgroup_data.csv")     # cols: subgroup, post_effect_sd
-
-# =============================================================================
-# 3. PUBLICATION STYLING & MULTI-PANEL PLOTTING
-# =============================================================================
-PALETTE = {
-    "garnet": "#782F40",
-    "slate": "#5C6B73",
-    "gold": "#CEB888",
-    "crimson": "#B22222",
-    "gray": "#8C8C8C",
-}
-
-fig, (ax1, ax2) = plt.subplots(
-    1, 2, figsize=(11, 4.6), gridspec_kw={"width_ratios": [1.35, 1]}
-)
-
-# --- Panel A: Event-Study Trajectory ---
-ax1.axhline(0, color=PALETTE["gray"], linestyle="--", linewidth=1.1, zorder=1)
-ax1.axvline(-0.5, color=PALETTE["crimson"], linestyle=":", linewidth=1.4, zorder=1)
-ax1.text(-0.35, 2.18, "Policy Adoption", color=PALETTE["crimson"], fontsize=9.5, style="italic")
-
-series_specs = [
-    ("Treated Counties (n = 28)", PALETTE["garnet"], "o"),
-    ("Control Counties (n = 34)", PALETTE["slate"], "s"),
-]
-for label, color, marker in series_specs:
-    sub = df_panel_a[df_panel_a["group"] == label]
-    ax1.fill_between(sub["year"], sub["ci_low"], sub["ci_high"], color=color, alpha=0.20)
-    ax1.plot(
-        sub["year"], sub["mean_effect"],
-        marker=marker, color=color, linewidth=2.2, markersize=6, label=label
-    )
-
-ax1.set_title("A. Event-Study Treatment Effect Trajectory", loc="left", fontsize=12, fontweight="bold", pad=10)
-ax1.set_xlabel("Years Relative to Policy Adoption (t = 0)", fontsize=10.5)
-ax1.set_ylabel("Change in Wetland Canopy Index (SD)", fontsize=10.5)
-ax1.set_xticks(years)
-ax1.set_ylim(-0.6, 2.5)
-ax1.legend(frameon=False, loc="upper left", fontsize=9.5)
-ax1.spines[["top", "right"]].set_visible(False)
-
-# --- Panel B: Subgroup Boxplot + Jittered Points ---
-groups_order = ["Control\nCounties", "Treated\n(Inland)", "Treated\n(Coastal)"]
-group_colors = [PALETTE["slate"], PALETTE["gold"], PALETTE["garnet"]]
-grouped_vals = [df_panel_b.loc[df_panel_b["subgroup"] == g, "post_effect_sd"].values for g in groups_order]
-
-ax2.axhline(0, color=PALETTE["gray"], linestyle="--", linewidth=1.1, zorder=1)
-bp = ax2.boxplot(
-    grouped_vals, positions=[1, 2, 3], widths=0.45, patch_artist=True,
-    showfliers=False, medianprops={"color": "#191919", "linewidth": 2.0}
-)
-for patch, whisker_pair, cap_pair, col in zip(
-    bp["boxes"], np.reshape(bp["whiskers"], (3, 2)), np.reshape(bp["caps"], (3, 2)), group_colors
-):
-    patch.set_facecolor(col)
-    patch.set_alpha(0.38)
-    patch.set_edgecolor(col)
-    patch.set_linewidth(1.6)
-    for w, c in zip(whisker_pair, cap_pair):
-        w.set(color=col, linewidth=1.4)
-        c.set(color=col, linewidth=1.4)
-
-for idx, (vals, col) in enumerate(zip(grouped_vals, group_colors), start=1):
-    jitter = rng.uniform(-0.14, 0.14, size=len(vals))
-    ax2.scatter(
-        np.full_like(vals, idx) + jitter, vals,
-        color=col, alpha=0.85, s=28, edgecolors="white", linewidth=0.6, zorder=3
-    )
-
-ax2.set_title("B. Post-Policy Effect by Subgroup", loc="left", fontsize=12, fontweight="bold", pad=10)
-ax2.set_xticks([1, 2, 3])
-ax2.set_xticklabels(groups_order, fontsize=10)
-ax2.set_ylabel("Mean Post-Treatment Effect (SD)", fontsize=10.5)
-ax2.set_ylim(-1.0, 3.5)
-ax2.spines[["top", "right"]].set_visible(False)
-
-# =============================================================================
-# 4. HIGH-RESOLUTION LOCAL EXPORT
-# =============================================================================
-plt.tight_layout(pad=1.8)
-plt.savefig("recreated_figure.png", dpi=300, bbox_inches="tight")
-plt.savefig("recreated_figure.pdf", bbox_inches="tight")
-print("Saved recreated_figure.png (300 DPI) and recreated_figure.pdf")
-plt.show()
-```
-
----
-
-### Option B: If You Attached `figure-recreator-r` (`/r`)
-
-Save as `recreate_figure.R` and run in RStudio or via `Rscript recreate_figure.R`:
+I created the self-contained R script, which exports a 300-dpi PNG and a vector PDF: recreate_figure.R. It uses ggplot2, dplyr, tidyr, and patchwork.
 
 ```r
-# Reproducible Recreation of Two-Panel Figure in R (ggplot2 + patchwork)
+# Recreate the two-panel event-study figure
+# Required packages: ggplot2, dplyr, tidyr, patchwork
+# Install if needed: install.packages(c("ggplot2", "dplyr", "tidyr", "patchwork", "readr"))
+
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 library(patchwork)
 
+# -----------------------------------------------------------------------------
+# 1. Seeded synthetic data generator
+# -----------------------------------------------------------------------------
 set.seed(42)
 
-# =============================================================================
-# 1. SEEDED SYNTHETIC DATA GENERATOR
-# =============================================================================
-years <- -4:5
-df_panel_a <- tibble(
-  year = rep(years, 2),
-  group = factor(
-    rep(c("Treated Counties (n = 28)", "Control Counties (n = 34)"), each = 10),
-    levels = c("Treated Counties (n = 28)", "Control Counties (n = 34)")
-  ),
-  mean_effect = c(
-    -0.08, -0.02, 0.04, -0.01, 0.00, 0.85, 1.42, 1.78, 1.95, 2.05,
-    -0.05,  0.02, -0.01, 0.03, 0.00, 0.04, 0.02, 0.05, 0.03, 0.06
-  ),
-  ci_half = c(
-    0.24, 0.23, 0.22, 0.21, 0.05, 0.26, 0.28, 0.30, 0.31, 0.32,
-    rep(0.22, 10)
-  )
-) |>
-  mutate(ci_low = mean_effect - ci_half, ci_high = mean_effect + ci_half)
+# Panel A target event-time means approximate the plotted trajectories.
+event_times <- -4:5
+treated_means <- c(-0.08, -0.02, 0.04, -0.01, 0.00, 0.85, 1.42, 1.78, 1.95, 2.05)
+control_means <- c(-0.04,  0.01, -0.02, 0.015, 0.00, 0.04, 0.02, 0.05, 0.03, 0.06)
+treated_sds   <- c(0.62, 0.62, 0.62, 0.62, 0.38, 0.68, 0.74, 0.79, 0.83, 0.86)
+control_sds   <- rep(0.66, length(event_times))
 
-df_panel_b <- tibble(
-  subgroup = factor(
-    c(rep("Control\nCounties", 34), rep("Treated\n(Inland)", 14), rep("Treated\n(Coastal)", 14)),
-    levels = c("Control\nCounties", "Treated\n(Inland)", "Treated\n(Coastal)")
-  ),
-  post_effect_sd = c(
-    rnorm(34, mean = 0.04, sd = 0.35),
-    rnorm(14, mean = 1.34, sd = 0.45),
-    rnorm(14, mean = 2.14, sd = 0.52)
-  )
+# Generate county-level observations around each target mean. Residuals are
+# centered/scaled at each event time so the synthetic sample matches the
+# specified trajectory and approximate uncertainty closely.
+make_event_group <- function(group_name, n_counties, target_means, target_sds) {
+  pieces <- lapply(seq_along(event_times), function(j) {
+    residuals <- rnorm(n_counties)
+    residuals <- residuals - mean(residuals)
+    residuals <- residuals / sd(residuals) * target_sds[j]
+    tibble(
+      county_id = paste0(ifelse(group_name == "Treated Counties", "T", "C"),
+                         sprintf("%02d", seq_len(n_counties))),
+      group = group_name,
+      event_time = event_times[j],
+      outcome = target_means[j] + residuals
+    )
+  })
+  bind_rows(pieces)
+}
+
+df_event <- bind_rows(
+  make_event_group("Treated Counties", 28, treated_means, treated_sds),
+  make_event_group("Control Counties", 34, control_means, control_sds)
 )
 
-# =============================================================================
-# 2. SWAP YOUR OWN DATA HERE
-# =============================================================================
-# df_panel_a <- readr::read_csv("my_event_study_data.csv")
-# df_panel_b <- readr::read_csv("my_subgroup_data.csv")
+# Panel B: synthetic individual post-policy effects for three subgroups.
+df_subgroup <- bind_rows(
+  tibble(subgroup = "Control Counties", effect = rnorm(18, mean = 0.00, sd = 0.34)),
+  tibble(subgroup = "Treated (Inland)", effect = rnorm(17, mean = 1.34, sd = 0.43)),
+  tibble(subgroup = "Treated (Coastal)", effect = rnorm(18, mean = 2.08, sd = 0.52))
+) %>%
+  group_by(subgroup) %>%
+  mutate(observation_id = row_number()) %>%
+  ungroup() %>%
+  mutate(subgroup = factor(
+    subgroup,
+    levels = c("Control Counties", "Treated (Inland)", "Treated (Coastal)")
+  ))
 
-# =============================================================================
-# 3. GGPLOT2 LAYERING & PATCHWORK ASSEMBLY
-# =============================================================================
-p_a <- ggplot(df_panel_a, aes(x = year, y = mean_effect, color = group, fill = group, shape = group)) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "#8C8C8C", linewidth = 0.5) +
-  geom_vline(xintercept = -0.5, linetype = "dotted", color = "#B22222", linewidth = 0.7) +
-  annotate("text", x = -0.35, y = 2.2, label = "Policy Adoption", color = "#B22222", fontface = "italic", hjust = 0, size = 3.5) +
-  geom_ribbon(aes(ymin = ci_low, ymax = ci_high), alpha = 0.20, color = NA) +
-  geom_line(linewidth = 1.0) +
-  geom_point(size = 2.6) +
-  scale_color_manual(values = c("#782F40", "#5C6B73")) +
-  scale_fill_manual(values = c("#782F40", "#5C6B73")) +
-  scale_shape_manual(values = c(16, 15)) +
-  scale_x_continuous(breaks = -4:5) +
-  coord_cartesian(ylim = c(-0.6, 2.5)) +
+# -----------------------------------------------------------------------------
+# Swap Your Own Data Here
+# df_event <- readr::read_csv("your_event_study.csv")  # columns: county_id, group, event_time, outcome
+# df_subgroup <- readr::read_csv("your_subgroup_data.csv")  # columns: subgroup, observation_id, effect
+# Keep the column names above; then rerun the summary and plotting sections.
+# -----------------------------------------------------------------------------
+
+# Summarize Panel A for the point estimates and 95% t-based confidence ribbons.
+event_summary <- df_event %>%
+  group_by(group, event_time) %>%
+  summarise(
+    estimate = mean(outcome),
+    sd = sd(outcome),
+    n = n(),
+    se = sd / sqrt(n),
+    ci = qt(0.975, df = n - 1) * se,
+    .groups = "drop"
+  ) %>%
+  mutate(group = factor(group, levels = c("Treated Counties", "Control Counties")))
+
+# Palette sampled/approximated from the source figure.
+col_treated <- "#984653"  # muted burgundy
+col_control <- "#78878E"  # slate gray-blue
+col_inland  <- "#DCC89B"  # warm sand
+fill_treated <- "#E8DADD"
+fill_control <- "#E1E4E6"
+
+series_cols <- c("Treated Counties" = col_treated,
+                 "Control Counties" = col_control)
+series_fills <- c("Treated Counties" = fill_treated,
+                  "Control Counties" = fill_control)
+subgroup_cols <- c("Control Counties" = col_control,
+                   "Treated (Inland)" = col_inland,
+                   "Treated (Coastal)" = col_treated)
+
+# -----------------------------------------------------------------------------
+# 2. Panel A: event-study treatment trajectory
+# -----------------------------------------------------------------------------
+p1 <- ggplot(event_summary,
+             aes(x = event_time, y = estimate, color = group, fill = group,
+                 group = group)) +
+  geom_ribbon(aes(ymin = estimate - ci, ymax = estimate + ci),
+              alpha = 0.95, color = NA) +
+  geom_hline(yintercept = 0, color = "#9E9E9E", linewidth = 0.55,
+             linetype = "dashed") +
+  geom_vline(xintercept = -0.5, color = "#F02B24", linewidth = 0.7,
+             linetype = "dashed") +
+  geom_line(aes(linetype = group), linewidth = 1.05) +
+  geom_point(aes(shape = group), size = 2.6, stroke = 0.6) +
+  annotate("text", x = 0.65, y = 2.23, label = "Policy Adoption",
+           color = "#E51C16", fontface = "italic", size = 3.7, hjust = 0) +
+  scale_color_manual(values = series_cols, name = NULL) +
+  scale_fill_manual(values = series_fills, guide = "none") +
+  scale_shape_manual(values = c("Treated Counties" = 16,
+                                "Control Counties" = 15), name = NULL,
+                     labels = c("Treated Counties (n = 28)",
+                                "Control Counties (n = 34)")) +
+  scale_linetype_manual(values = c("Treated Counties" = "solid",
+                                   "Control Counties" = "solid"),
+                        name = NULL,
+                        labels = c("Treated Counties (n = 28)",
+                                   "Control Counties (n = 34)")) +
+  scale_x_continuous(breaks = -4:5, limits = c(-4.3, 5.3),
+                     expand = expansion(mult = 0)) +
+  scale_y_continuous(breaks = seq(-0.5, 2.5, by = 0.5),
+                     limits = c(-0.6, 2.5), expand = expansion(mult = 0)) +
   labs(
     title = "A. Event-Study Treatment Effect Trajectory",
     x = "Years Relative to Policy Adoption (t = 0)",
-    y = "Change in Wetland Canopy Index (SD)",
-    color = NULL, fill = NULL, shape = NULL
+    y = "Change in Wetland Canopy Index (SD)"
   ) +
-  theme_classic(base_size = 12) +
+  guides(color = "none", fill = "none",
+         shape = guide_legend(override.aes = list(
+           color = c(col_treated, col_control),
+           linetype = c("solid", "solid"),
+           size = 2.6
+         )),
+         linetype = "none") +
+  theme_classic(base_size = 11) +
   theme(
-    plot.title = element_text(face = "bold", size = 12),
-    legend.position = c(0.28, 0.88),
-    legend.background = element_blank()
+    plot.title = element_text(face = "bold", size = 12, hjust = 0),
+    axis.title = element_text(size = 10.5, color = "#222222"),
+    axis.text = element_text(size = 9.5, color = "#222222"),
+    axis.line = element_line(linewidth = 0.6, color = "#222222"),
+    axis.ticks = element_line(linewidth = 0.6, color = "#222222"),
+    legend.position = c(0.03, 0.96),
+    legend.justification = c(0, 1),
+    legend.text = element_text(size = 9),
+    legend.key = element_blank(),
+    legend.background = element_blank(),
+    plot.margin = margin(8, 14, 8, 8)
   )
 
-p_b <- ggplot(df_panel_b, aes(x = subgroup, y = post_effect_sd, fill = subgroup, color = subgroup)) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "#8C8C8C", linewidth = 0.5) +
-  geom_boxplot(width = 0.45, alpha = 0.38, outlier.shape = NA, median.colour = "#191919", fatten = 1.8) +
-  geom_jitter(width = 0.14, size = 2.2, alpha = 0.85, shape = 21, stroke = 0.4, color = "white") +
-  scale_fill_manual(values = c("#5C6B73", "#CEB888", "#782F40")) +
-  scale_color_manual(values = c("#5C6B73", "#CEB888", "#782F40")) +
-  coord_cartesian(ylim = c(-1.0, 3.5)) +
+# -----------------------------------------------------------------------------
+# 3. Panel B: subgroup distributions
+# -----------------------------------------------------------------------------
+p2 <- ggplot(df_subgroup, aes(x = subgroup, y = effect, fill = subgroup,
+                              color = subgroup)) +
+  geom_hline(yintercept = 0, color = "#9E9E9E", linewidth = 0.55,
+             linetype = "dashed") +
+  geom_boxplot(width = 0.40, outlier.shape = NA, linewidth = 0.75,
+               alpha = 0.78, color = "#3B3B3B") +
+  geom_jitter(width = 0.14, height = 0, size = 2.2, alpha = 0.95,
+              shape = 21, stroke = 0.55, color = "white") +
+  scale_fill_manual(values = subgroup_cols, guide = "none") +
+  scale_color_manual(values = subgroup_cols, guide = "none") +
+  scale_x_discrete(labels = c("Control\nCounties", "Treated\n(Inland)",
+                               "Treated\n(Coastal)"),
+                   expand = expansion(add = 0.55)) +
+  scale_y_continuous(breaks = -1:3, limits = c(-1, 3.5),
+                     expand = expansion(mult = 0)) +
   labs(
     title = "B. Post-Policy Effect by Subgroup",
     x = NULL,
     y = "Mean Post-Treatment Effect (SD)"
   ) +
-  theme_classic(base_size = 12) +
+  theme_classic(base_size = 11) +
   theme(
-    plot.title = element_text(face = "bold", size = 12),
-    legend.position = "none"
+    plot.title = element_text(face = "bold", size = 12, hjust = 0),
+    axis.title = element_text(size = 10.5, color = "#222222"),
+    axis.text = element_text(size = 9.5, color = "#222222"),
+    axis.line = element_line(linewidth = 0.6, color = "#222222"),
+    axis.ticks = element_line(linewidth = 0.6, color = "#222222"),
+    plot.margin = margin(8, 8, 8, 14)
   )
 
-combined_fig <- p_a + p_b + plot_layout(widths = c(1.35, 1))
-ggsave("recreated_figure.png", combined_fig, width = 11, height = 4.6, dpi = 300)
-ggsave("recreated_figure.pdf", combined_fig, width = 11, height = 4.6)
+# -----------------------------------------------------------------------------
+# 4. Assemble and export: high-resolution PNG and vector PDF
+# -----------------------------------------------------------------------------
+recreated_figure <- p1 + p2 + plot_layout(widths = c(1.5, 1))
+
+# Preview in an interactive R session:
+print(recreated_figure)
+
+ggsave("recreated_figure.png", plot = recreated_figure,
+       width = 12, height = 5.2, units = "in", dpi = 300, bg = "white")
+ggsave("recreated_figure.pdf", plot = recreated_figure,
+       width = 12, height = 5.2, units = "in", device = "pdf", bg = "white")
+
 ```
 
----
+# Option B: Code generated with the python skill instead
 
-### Option C: If You Attached `figure-recreator-stata` (`/stata`)
 
-Save as `recreate_figure.do` and run in Stata (`do recreate_figure.do`):
+```python
+"""Recreate a two-panel event-study and subgroup-effects figure.
 
-```stata
-* ==============================================================================
-* Reproducible Recreation of Event-Study & Subgroup Figure in Stata
-* ==============================================================================
-version 17
-clear all
-set more off
-set seed 42
+Requirements: numpy, pandas, matplotlib
+Run: python recreate_figure.py
+The script generates seeded synthetic data, then saves PNG and PDF outputs.
+"""
 
-* --- 1. Synthetic Data for Panel A (Event-Study) ---
-set obs 10
-gen int year = _n - 5
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
-gen double ctrl_mean  = cond(year == -4, -0.05, cond(year == -3, 0.02, cond(year == -2, -0.01, cond(year == -1, 0.03, cond(year == 0, 0.00, 0.04)))))
-gen double ctrl_low   = ctrl_mean - 0.22
-gen double ctrl_high  = ctrl_mean + 0.22
 
-gen double treat_mean = 0
-replace treat_mean = -0.08 if year == -4
-replace treat_mean = -0.02 if year == -3
-replace treat_mean =  0.04 if year == -2
-replace treat_mean = -0.01 if year == -1
-replace treat_mean =  0.00 if year ==  0
-replace treat_mean =  0.85 if year ==  1
-replace treat_mean =  1.42 if year ==  2
-replace treat_mean =  1.78 if year ==  3
-replace treat_mean =  1.95 if year ==  4
-replace treat_mean =  2.05 if year ==  5
+# -----------------------------------------------------------------------------
+# Section 1: seeded synthetic data generator
+# Unified long-format schema:
+#   panel       : "trajectory" or "subgroup"
+#   group       : group label
+#   event_time  : event time for trajectory rows; NaN for subgroup rows
+#   value       : outcome / effect value
+# -----------------------------------------------------------------------------
+rng = np.random.default_rng(42)
 
-gen double treat_ci   = cond(year == 0, 0.05, 0.25)
-gen double treat_low  = treat_mean - treat_ci
-gen double treat_high = treat_mean + treat_ci
+# Event-study target means closely follow the figure.
+event_times = np.arange(-4, 6)
+trajectory_targets = {
+    "Treated Counties": np.array([-0.08, -0.02, 0.04, -0.01, 0.00, 0.85, 1.42, 1.78, 1.95, 2.05]),
+    "Control Counties": np.array([-0.03, 0.01, -0.02, 0.02, 0.00, 0.04, 0.02, 0.05, 0.03, 0.06]),
+}
+trajectory_sds = {
+    "Treated Counties": np.array([0.62, 0.64, 0.62, 0.61, 0.60, 0.70, 0.78, 0.78, 0.82, 0.82]),
+    "Control Counties": np.array([0.54, 0.56, 0.55, 0.56, 0.55, 0.54, 0.55, 0.56, 0.55, 0.57]),
+}
+county_counts = {"Treated Counties": 28, "Control Counties": 34}
 
-* SWAP YOUR OWN DATA HERE:
-* import delimited "my_event_study_data.csv", clear
+rows = []
+for group, target_means in trajectory_targets.items():
+    n = county_counts[group]
+    for t, target, sd in zip(event_times, target_means, trajectory_sds[group]):
+        # Center and rescale each simulated cross-section so its sample mean and
+        # SD track the target trajectory while retaining realistic variation.
+        draws = rng.normal(size=n)
+        draws = (draws - draws.mean()) / draws.std(ddof=1)
+        values = target + sd * draws
+        rows.extend({"panel": "trajectory", "group": group,
+                     "event_time": int(t), "value": float(v)} for v in values)
 
-twoway ///
-    (rarea ctrl_low ctrl_high year, color("92 107 115%20") lwidth(none)) ///
-    (rarea treat_low treat_high year, color("120 47 64%22") lwidth(none)) ///
-    (connected ctrl_mean year, lcolor("92 107 115") mcolor("92 107 115") msymbol(square) lwidth(medthick)) ///
-    (connected treat_mean year, lcolor("120 47 64") mcolor("120 47 64") msymbol(circle) lwidth(medthick)), ///
-    yline(0, lpattern(dash) lcolor("140 140 140")) ///
-    xline(-0.5, lpattern(dot) lcolor("178 34 34") lwidth(medthick)) ///
-    text(2.2 -0.35 "{it:Policy Adoption}", place(e) color("178 34 34") size(small)) ///
-    title("{bf:A. Event-Study Treatment Effect Trajectory}", pos(11) size(medsmall)) ///
-    xtitle("Years Relative to Policy Adoption (t = 0)") ///
-    ytitle("Change in Wetland Canopy Index (SD)") ///
-    xlabel(-4(1)5, nogrid) ylabel(-0.5(0.5)2.5, angle(horizontal) nogrid) ///
-    legend(order(4 "Treated Counties (n = 28)" 3 "Control Counties (n = 34)") pos(11) ring(0) cols(1) region(lstyle(none))) ///
-    graphregion(color(white)) plotregion(color(white)) ///
-    name(panelA, replace)
+# Subgroup observations for the boxplots and overlaid county-level points.
+# Target centers/spreads reproduce the near-zero control and positive treated effects.
+subgroup_spec = {
+    "Control Counties": (0.02, 0.31, 16),
+    "Treated (Inland)": (1.32, 0.48, 16),
+    "Treated (Coastal)": (2.08, 0.52, 16),
+}
+for group, (target, sd, n) in subgroup_spec.items():
+    draws = rng.normal(size=n)
+    draws = (draws - draws.mean()) / draws.std(ddof=1)
+    values = target + sd * draws
+    rows.extend({"panel": "subgroup", "group": group,
+                 "event_time": np.nan, "value": float(v)} for v in values)
 
-graph export "recreated_figure_panelA.png", width(2400) replace
+df = pd.DataFrame(rows, columns=["panel", "group", "event_time", "value"])
+
+
+# -----------------------------------------------------------------------------
+# Section 2: Swap Your Own Data Here
+# Your CSV must contain: panel, group, event_time, value.
+# Use panel="trajectory" for event-time observations; panel="subgroup" for effects.
+# Uncomment the next line to replace the seeded synthetic data with your CSV.
+# df = pd.read_csv("your_data.csv")
+# -----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
+# Section 3: publication styling and plotting
+# -----------------------------------------------------------------------------
+plt.rcParams.update({
+    "font.family": "DejaVu Sans",
+    "font.size": 10.5,
+    "axes.labelsize": 11.5,
+    "axes.titlesize": 12.5,
+    "xtick.labelsize": 9.5,
+    "ytick.labelsize": 9.5,
+    "axes.linewidth": 1.2,
+    "pdf.fonttype": 42,
+    "ps.fonttype": 42,
+})
+
+COLORS = {
+    "treated": "#974457",       # muted burgundy
+    "treated_band": "#E8DADD",  # pale burgundy CI ribbon
+    "control": "#74838A",       # blue-gray
+    "control_band": "#E2E5E7",  # pale blue-gray CI ribbon
+    "inland": "#DCC697",        # warm sand
+    "inland_band": "#F1E8D7",
+    "coastal_band": "#D9BCC3",
+    "zero": "#A5A5A5",
+    "black": "#222222",
+}
+
+fig, (ax1, ax2) = plt.subplots(
+    1, 2, figsize=(14.0, 5.35), gridspec_kw={"width_ratios": [1.48, 1.08]}
+)
+fig.subplots_adjust(left=0.075, right=0.985, bottom=0.17, top=0.86, wspace=0.27)
+
+# Panel A: means and pointwise 95% confidence intervals.
+trajectory = df[df["panel"] == "trajectory"]
+for group, color, band in [
+    ("Control Counties", COLORS["control"], COLORS["control_band"]),
+    ("Treated Counties", COLORS["treated"], COLORS["treated_band"]),
+]:
+    sub = trajectory[trajectory["group"] == group]
+    summary = sub.groupby("event_time")["value"].agg(["mean", "std", "count"]).reindex(event_times)
+    half_width = 1.96 * summary["std"] / np.sqrt(summary["count"])
+    means = summary["mean"].to_numpy()
+    lower = (summary["mean"] - half_width).to_numpy()
+    upper = (summary["mean"] + half_width).to_numpy()
+    ax1.fill_between(event_times, lower, upper, color=band, linewidth=0, zorder=1)
+    marker = "s" if group == "Control Counties" else "o"
+    ax1.plot(event_times, means, color=color, linewidth=2.2, marker=marker,
+             markersize=5.2, label=f"{group} (n = {county_counts[group]})", zorder=3)
+
+ax1.axhline(0, color=COLORS["zero"], linestyle=(0, (4, 3)), linewidth=1.0, zorder=0)
+ax1.axvline(-0.5, color="#E31A1C", linestyle=(0, (2, 2)), linewidth=1.0, zorder=2)
+ax1.text(-0.36, 2.23, "Policy Adoption", color="#E31A1C", fontsize=9.5,
+         fontstyle="italic", va="center")
+ax1.set_xlim(-4.3, 5.3)
+ax1.set_ylim(-0.6, 2.5)
+ax1.set_xticks(event_times)
+ax1.set_yticks(np.arange(-0.5, 2.51, 0.5))
+ax1.set_xlabel("Years Relative to Policy Adoption (t = 0)", labelpad=15)
+ax1.set_ylabel("Change in Wetland Canopy Index (SD)", labelpad=9)
+ax1.set_title("A. Event-Study Treatment Effect Trajectory", loc="left",
+              fontweight="bold", pad=23)
+ax1.legend(loc="upper left", bbox_to_anchor=(0.015, 0.97), frameon=False,
+           fontsize=9.5, handlelength=2.0, labelspacing=0.55)
+
+# Panel B: boxplots with the individual observations jittered on top.
+subgroup_order = ["Control Counties", "Treated (Inland)", "Treated (Coastal)"]
+subgroup_colors = [COLORS["control"], COLORS["inland"], COLORS["treated"]]
+subgroup_fills = [COLORS["control_band"], COLORS["inland_band"], COLORS["coastal_band"]]
+subgroup = df[df["panel"] == "subgroup"]
+box_data = [subgroup.loc[subgroup["group"] == g, "value"].to_numpy() for g in subgroup_order]
+positions = np.arange(1, len(subgroup_order) + 1)
+
+bp = ax2.boxplot(
+    box_data, positions=positions, widths=0.40, patch_artist=True, showfliers=False,
+    medianprops={"color": COLORS["black"], "linewidth": 1.6},
+    whiskerprops={"linewidth": 1.2}, capprops={"linewidth": 1.2},
+    boxprops={"linewidth": 1.2},
+)
+for patch, edge, fill in zip(bp["boxes"], subgroup_colors, subgroup_fills):
+    patch.set_facecolor(fill)
+    patch.set_edgecolor(edge)
+for whisker, cap, edge in zip(bp["whiskers"], bp["caps"],
+                               np.repeat(subgroup_colors, 2)):
+    whisker.set_color(edge)
+    cap.set_color(edge)
+
+jitter_rng = np.random.default_rng(314)
+for x, group, color in zip(positions, subgroup_order, subgroup_colors):
+    vals = subgroup.loc[subgroup["group"] == group, "value"].to_numpy()
+    jitter = jitter_rng.uniform(-0.14, 0.14, size=len(vals))
+    ax2.scatter(x + jitter, vals, s=28, facecolor=color, edgecolor="white",
+                linewidth=0.75, alpha=0.92, zorder=3)
+
+ax2.axhline(0, color=COLORS["zero"], linestyle=(0, (4, 3)), linewidth=1.0, zorder=0)
+ax2.set_xlim(0.35, 3.65)
+ax2.set_ylim(-1.0, 3.5)
+ax2.set_yticks(np.arange(-1, 3.1, 1))
+ax2.set_xticks(positions)
+ax2.set_xticklabels(["Control\nCounties", "Treated\n(Inland)", "Treated\n(Coastal)"])
+ax2.set_ylabel("Mean Post-Treatment Effect (SD)", labelpad=9)
+ax2.set_title("B. Post-Policy Effect by Subgroup", loc="left",
+              fontweight="bold", pad=23)
+
+# Open L-shaped publication frame on both panels.
+for ax in (ax1, ax2):
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_color(COLORS["black"])
+    ax.spines["bottom"].set_color(COLORS["black"])
+    ax.tick_params(direction="out", length=4, width=1.0, color=COLORS["black"])
+
+# Section 4: high-resolution raster and vector exports.
+fig.savefig("recreated_figure.png", dpi=300, bbox_inches="tight", facecolor="white")
+fig.savefig("recreated_figure.pdf", bbox_inches="tight", facecolor="white")
+plt.show()
 ```
-

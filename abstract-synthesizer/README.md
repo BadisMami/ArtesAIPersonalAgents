@@ -12,7 +12,7 @@ Whether you are preparing a related-work section, onboarding into a new research
 
 The **Abstract Synthesizer** takes raw abstracts or reading notes you paste into ArtesAI and organizes them by theme, methodology, and open research questions while strictly relying **only** on the sources you provide.
 
-- **Recommended Model in ArtesAI**: `Anthropic → claude-sonnet-5` (Creativity: `Low`) or `OpenAI → gpt-5.4` / `gpt-6-luna`
+- **Recommended Model in ArtesAI**: `Anthropic → claude-sonnet-5` or `OpenAI → gpt-6-luna`
 - **Estimated Setup Time**: ~5 minutes
 
 ---

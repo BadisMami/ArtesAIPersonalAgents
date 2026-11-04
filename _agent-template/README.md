@@ -81,7 +81,12 @@ In the **Capabilities & Model** tab, configure the toggles and model as follows:
 | **Model (`Change` button)** | • **OpenAI**: `gpt-5.4` *(Default)* or `gpt-6-luna`<br>• **Anthropic**: `claude-sonnet-5` or `claude-opus-4-7` | In **Model Options**, set **Creativity** (`Low`/`Medium`) for Anthropic or **Verbosity & Reasoning Effort** (`Auto`/`Medium`/`High`) for OpenAI, then click **Save**. |
 
 #### 5. Starter Prompts
-*(Optional)* In **5. Starter Prompts**, add 1–2 quick-start prompts.
+*(Optional)* In **5. Starter Prompts**, click **Add Starter Prompt** and add 1–2 quick-start prompts using the **Title** and **Prompt** fields, then click **Create**:
+
+| Title | Prompt |
+| :--- | :--- |
+| `[Short Button Title 1]` | `[Full starter prompt text 1]` |
+| `[Short Button Title 2]` | `[Full starter prompt text 2]` |
 
 ---
 

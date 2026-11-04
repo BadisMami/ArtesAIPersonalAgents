@@ -75,20 +75,6 @@ In step **4. Capabilities & Model**, ArtesAI lets you toggle four features and p
 | **Generate Artifacts** | Opens long tables, polished drafts, and code scripts in a dedicated side-by-side preview/copy window. | Turn **ON** for all agents in this repo—it makes Markdown matrices, syllabi, and Python/R scripts much easier to read and copy. |
 | **Model (`Change` button)** | Opens the **Model Options** dialog to choose a **Model Type**, specific **Model**, **Max Response Tokens**, and tuning controls (**Creativity** or **Verbosity / Reasoning Effort**). | Defaults to `OpenAI (gpt-5.4)`. See the table below for every available model in ArtesAI and when to use each. |
 
-### Available Models in ArtesAI (`Model Options` Dialog)
-
-Clicking **Change** next to **Model** opens the **Model Options** window where you can choose from 5 **Model Types**:
-
-| Model Type | Available Models in Dropdown | Default Max Response Tokens | Tuning Controls | Best Used For |
-| :--- | :--- | :--- | :--- | :--- |
-| **OpenAI** | • `gpt-5.4` *(Default)*<br>• `gpt-5.4-mini`<br>• `gpt-5.6-luna`<br>• `gpt-5.6-terra`<br>• `gpt-6-luna` | `128,000` | • **Verbosity**: `Auto` \| `Low` \| `Medium` \| `High`<br>• **Reasoning Effort**: `Auto` \| `Low` \| `Medium` \| `High` | All-around academic work, vision/figure analysis, complex multi-step reasoning (`gpt-6-luna` with `High` Reasoning Effort), or fast everyday tasks (`gpt-5.4-mini`). |
-| **Anthropic** | • `claude-haiku-4-5`<br>• `claude-opus-4-7`<br>• `claude-sonnet-4-6`<br>• `claude-sonnet-5` | `64,000` | • **Creativity**: `None` \| `Low` \| `Medium` \| `High` *(+ Precise Value)* | Nuanced academic writing, grant editing, literature synthesis, and clean scientific code (`claude-sonnet-5` and `claude-opus-4-7` are top choices; use `Low` Creativity for code/citations). |
-| **xAI** | • `grok-4.3` | `8,192` | • **Creativity**: `None` \| `Low` \| `Medium` \| `High` *(+ Precise Value)* | Fast brainstorming, course ideation, and direct analytical Q&A. |
-| **Mistral** | • `Mistral-Large-3` | `4,096` | • **Creativity**: `None` \| `Low` \| `Medium` \| `High` *(+ Precise Value)* | Concise European/multilingual text tasks and lightweight structured summaries (note the `4,096` output token cap). |
-| **Meta** | • `Llama-3.3-70B-Instruct` | `4,096` | • **Creativity**: `None` \| `Low` \| `Medium` \| `High` *(+ Precise Value)* | Open-weights baseline comparisons and short instructional tasks (note the `4,096` output token cap). |
-
----
-
 ## Tips for Getting the Most Out of ArtesAI Agents
 
 - **Start Simple, Then Layer Skills**: Test the agent with just its `system-prompt.md` first, then add skills one at a time so you can see how each skill shapes the output.

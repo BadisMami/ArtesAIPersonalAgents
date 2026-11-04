@@ -61,8 +61,6 @@ Every file in an agent's `skills/` folder is a **standard, platform-agnostic ski
 3. Hover over **`Skills >`** in the popup menu and click the skill(s) you created in Part 1 to attach them.
 4. Copy the sample prompt from `example-input.md` into the chat, verify the response against `example-output.md`, and click **Create** at the bottom to save your agent!
 
----
-
 ## Understanding "Capabilities & Model" (Step 4)
 
 In step **4. Capabilities & Model**, ArtesAI lets you toggle four features and pick a base model. Here is a quick guide to when to turn each toggle **On** or **Off**:
@@ -73,7 +71,8 @@ In step **4. Capabilities & Model**, ArtesAI lets you toggle four features and p
 | **Add Files & Images** | Lets users attach PDFs, CSVs, scripts, or screenshots directly inside a chat session. | Turn **ON** for almost all research, teaching, and coding agents so you can drop papers, syllabi, or `.py`/`.csv` files into the chat. |
 | **Web Search** | Lets the agent search the live internet during a conversation. | Keep **OFF** when you want strict grounding in *only* the text/data you provide (e.g., `Abstract Synthesizer`). Turn **ON** when checking live funder websites or current policy dates. |
 | **Generate Artifacts** | Opens long tables, polished drafts, and code scripts in a dedicated side-by-side preview/copy window. | Turn **ON** for all agents in this repo—it makes Markdown matrices, syllabi, and Python/R scripts much easier to read and copy. |
-| **Model (`Change` button)** | Opens the **Model Options** dialog to choose a **Model Type**, specific **Model**, **Max Response Tokens**, and tuning controls (**Creativity** or **Verbosity / Reasoning Effort**). | Defaults to `OpenAI (gpt-5.4)`. See the table below for every available model in ArtesAI and when to use each. |
+| **Model (`Change` button)** | Opens the **Model Options** dialog to choose a **Model Type**, specific **Model**, **Max Response Tokens**, and tuning controls (**Creativity** or **Verbosity / Reasoning Effort**). | Defaults to `OpenAI (gpt-5.4)`. Check the dropdown to see what models are available |
+---
 
 ## Tips for Getting the Most Out of ArtesAI Agents
 

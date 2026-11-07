@@ -19,6 +19,7 @@ Each folder in this repository contains everything you need to build a specializ
 | :--- | :--- | :--- | :--- |
 | [**Abstract Synthesizer**](./abstract-synthesizer/README.md) | Academic & Research | • `methodology-matrix-extractor`<br>• `research-gap-identifier` | Beginner |
 | [**Scientific Figure Recreator**](./scientific-figure-recreator/README.md) | Data Visualization & Plotting | • `figure-recreator-python`<br>• `figure-recreator-r`<br>• `figure-recreator-stata`<br>• `figure-recreator-matlab` | Beginner / Intermediate |
+| [**Research Paper Matchmaker**](./research-paper-matchmaker/README.md) | Academic & Research | • `project-paper-matcher`<br>• `project-paper-finder` | Beginner |
 
 ---
 

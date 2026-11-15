@@ -6,22 +6,19 @@ description: Finds real, relevant research papers for a user's project using web
 # Project Paper Finder (`/find`)
 
 ## When to Apply This Skill
-Use this when the user types `/find`, or when they describe a project without providing any papers.
+Activate this workflow whenever the user types `/find` or describes a research project without providing papers and asks for literature recommendations.
 
 ## Step-by-Step Instructions
-1. Pull 3 to 5 key topics from the project description (the problem, the method, the field).
-2. Search for papers on those topics. Prefer peer-reviewed papers and well-known sources such as journal sites, Google Scholar, arXiv, PubMed, and university repositories.
-3. Return 5 to 8 papers in a table with the columns: Paper (title, authors, year), Link, One-Line Summary, Why It Fits Your Project.
-4. Group the table into **Start Here** (most directly useful) and **Good Background** (helpful context).
-5. Suggest 3 search terms the user can use to keep looking on their own.
-
-## Verification Rules
-- Only list a paper if search returned it with a working link. Never build a link or DOI from memory.
-- If a detail such as the year or author list is unclear from the search result, mark it `[Verify]`.
-
-## If Web Search Is Unavailable
-Do not list any papers. Instead, give:
-- 5 to 8 search terms and keyword combinations tailored to the project.
-- Which databases to search (for example Google Scholar, IEEE Xplore, PubMed, or arXiv, depending on the field).
-- A tip on how to judge whether a result is relevant.
-Then invite the user to paste the papers they find so you can run `/match`.
+1. **Extract Search Themes**: Pull 3–5 key topics from the user's project description (the core problem, the method/tools, and the application domain).
+2. **Search or Provide Search Strategy**:
+   - **When Web Search Is Enabled**:
+     - Search for peer-reviewed papers and reputable preprints (journal sites, Google Scholar, arXiv, PubMed, IEEE Xplore, or university repositories).
+     - **Strict Verification Rule**: Only list a paper if web search returned it with a working link. Never construct a citation, URL, or DOI from memory; if any metadata detail is unclear from search results, mark it `[Needs Verification]`.
+     - Present 5–8 verified papers in a Markdown table grouped into **Start Here (Direct Method/Problem Fit)** and **Good Background (Helpful Context)** with these exact columns:
+       `Paper (Title, Authors, Year) | Link | One-Line Summary | Why It Fits Your Project`
+   - **When Web Search Is Off / Unavailable**:
+     - Do **not** list or guess paper titles from memory. Instead, provide:
+       1. **5–8 copy-pasteable search queries** (with Boolean `AND`/`OR` combinations) tailored to the project's sub-problems.
+       2. **Recommended databases** for the user's discipline (e.g., Google Scholar, Web of Science, PubMed, IEEE Xplore, arXiv).
+       3. **Inclusion/Exclusion Checklist**: 2–3 quick criteria for judging whether a search hit actually fits their setup.
+3. **Concrete Next Steps**: End with 2 concrete next steps, including 3 follow-up search terms and an invitation to upload or paste the best papers they find to run `/match`.

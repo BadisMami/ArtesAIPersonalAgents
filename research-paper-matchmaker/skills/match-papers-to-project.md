@@ -6,18 +6,15 @@ description: Explains uploaded papers in plain language, connects each one to th
 # Project Paper Matcher (`/match`)
 
 ## When to Apply This Skill
-Use this when the user types `/match`, or when they describe a project and also upload or paste one or more papers.
+Activate this workflow whenever the user types `/match` or asks to evaluate, compare, and rank uploaded or pasted papers against their project description.
 
 ## Step-by-Step Instructions
-1. Restate the project in 1 or 2 sentences so the user can confirm you understood it.
-2. For each paper, write a short card:
-   - **What it is about**: 2 or 3 plain-language sentences. Explain any technical term in parentheses.
-   - **How it helps your project**: 2 to 4 bullets, each tied to a specific part of the project (a method to borrow, a result to compare against, a mistake to avoid).
-   - **What does not apply**: 1 to 3 bullets on parts of the paper that do not fit the project and why.
-   - **Relevance score**: High, Medium, or Low, with a one-line reason.
-3. Build a **Ranking Table** with the columns: Rank, Paper, Score, Best Use for Your Project. Order from most to least relevant.
-4. Finish with a **Where to Start** line: which paper to read first and which section of it to focus on.
-
-## Rules
-- Use only what the papers and the project description actually say.
-- If a paper is only an abstract or excerpt, say so and note that the full paper may change the assessment.
+1. **Restate the Project**: Summarize the user's project goal, tools/methods, and constraints in 1–2 sentences so the user can confirm you understood it.
+2. **Create a Paper Card for Each Provided Paper**: Base your analysis strictly on what the paper and project description actually state (if only an abstract or excerpt is provided, note that the full text may change the assessment):
+   - **What it is about**: 2–3 plain-language sentences summarizing the study. Define any technical terms in parentheses.
+   - **How it helps your project**: 2–4 bullets, each tied to a specific part of the user's project (e.g., a method to borrow, a benchmark to compare against, or a failure mode to avoid).
+   - **What does not apply**: 1–3 bullets flagging aspects of the paper that do not fit the user's project and why.
+   - **Relevance score**: `High`, `Medium`, or `Low`, with a one-sentence justification.
+3. **Build a Ranking Table**: Construct a Markdown table with these exact columns, ordered from most to least relevant:
+   `Rank | Paper (Authors, Year) | Relevance Score | Best Use for Your Project`
+4. **Where to Start & Next Steps**: End with a **Where to Start** recommendation (which paper and section to read first) and 2 concrete next steps the user can take (including offering `/find` if they need papers to fill a remaining gap).
